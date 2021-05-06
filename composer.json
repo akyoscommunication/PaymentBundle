@@ -1,0 +1,43 @@
+{
+	"name": "akyos/payment-bundle",
+	"description": "AkyosCMS for Symfony - Payment",
+	"type": "symfony-bundle",
+	"require": {
+		"php": "^7.4"
+	},
+	"require-dev": {
+	},
+	"license": "proprietary",
+	"authors": [
+		{
+			"name": "Lilian Carneau",
+			"email": "lilian@akyos.com"
+		},
+		{
+			"name": "Johan JOULKVA",
+			"email": "johan@akyos.com"
+		},
+		{
+			"name": "Thomas Sebert",
+			"email": "thomas@akyos.com"
+		}
+	],
+	"scripts": {
+		"after-install-dependencies": [
+			"echo $'\n' >> config/routes.yaml",
+			"echo 'contact_form:' >> config/routes.yaml",
+			"echo '    resource: \"../lib/PaymentBundle/Controller/\"' >> config/routes.yaml",
+			"echo '    type: annotation' >> config/routes.yaml",
+			"php bin/console asset:install --symlink",
+			"composer dump-autoload",
+			"php bin/console make:migration",
+			"php bin/console doctrine:migrations:migrate"
+		]
+	},
+	"minimum-stability": "dev",
+	"autoload": {
+		"psr-4": {
+			"Akyos\\PaymentBundle\\": ""
+		}
+	}
+}

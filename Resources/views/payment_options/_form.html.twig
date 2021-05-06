@@ -1,0 +1,6 @@
+<div class="form">
+    {{ form_start(form, {'attr': {'class': 'd-flex flex-column'}}) }}
+    {{ form_widget(form) }}
+    <button class="btn btn-outline-success ml-auto mt-5">{{ button_label|default('Enregistrer') }}</button>
+    {{ form_end(form) }}
+</div>

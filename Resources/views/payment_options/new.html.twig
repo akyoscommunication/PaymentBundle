@@ -1,0 +1,8 @@
+{% extends '@AkyosCore/layout.html.twig' %}
+
+{% block title %}PaymentBundle - Options{% endblock %}
+
+{% block page_content %}
+    <h1 class="mb-5">Options du bundle de paiement</h1>
+    {{ include('@AkyosPayment/payment_options/_form.html.twig') }}
+{% endblock %}
