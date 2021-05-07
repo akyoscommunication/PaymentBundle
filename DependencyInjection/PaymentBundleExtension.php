@@ -21,6 +21,8 @@ class PaymentBundleExtension extends Extension
         $loader->load('services.yaml');
 
         $container->setParameter('stripe_live_key', $config['stripe_live_key']);
+        $container->setParameter('stripe_live_public_key', $config['stripe_live_public_key']);
         $container->setParameter('stripe_test_key', $config['stripe_test_key']);
+        $container->setParameter('stripe_test_public_key', $config['stripe_test_public_key']);
     }
 }

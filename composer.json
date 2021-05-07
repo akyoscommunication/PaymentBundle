@@ -3,7 +3,8 @@
 	"description": "AkyosCMS for Symfony - Payment",
 	"type": "symfony-bundle",
 	"require": {
-		"php": "^7.4"
+		"php": "^7.4",
+		"stripe/stripe-php": "^7.78"
 	},
 	"require-dev": {
 	},

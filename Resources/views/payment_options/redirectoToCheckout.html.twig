@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        var stripe = Stripe("{{ api_key }}");
+        stripe.redirectToCheckout({ sessionId: '{{ id }}' });
+    </script>
+</body>
+</html>

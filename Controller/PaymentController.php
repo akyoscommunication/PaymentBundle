@@ -37,13 +37,13 @@ class PaymentController extends AbstractController
 			$transaction->setPaymentUrl($paymentService->getPaymentUrl($transaction));
 			$entityManager->persist($payment);
 			$entityManager->flush();
-			
-			$this->redirectToRoute($transaction->getCallbackRoute(), array_merge($transaction->getCallbackParams(), [
-				'status' => 'success',
-			]));
 		} catch(\Exception $e) {
 			$this->addFlash('danger', 'Le paiement a bien été pris en compte par le module bancaire, mais l\'enregistrement du paiement sur ce site n\'a pas pu aboutir. Veuillez contacter l\‘équipe technique pour vérification.');
 		}
+		
+		return $this->redirectToRoute($transaction->getCallbackRoute(), array_merge($transaction->getCallbackParams(), [
+			'status' => 'success',
+		]));
 	}
 	
 	/**
@@ -66,12 +66,25 @@ class PaymentController extends AbstractController
 			$transaction->setPaymentUrl($paymentService->getPaymentUrl($transaction));
 			$entityManager->persist($payment);
 			$entityManager->flush();
-			
-			$this->redirectToRoute($transaction->getCallbackRoute(), array_merge($transaction->getCallbackParams(), [
-				'status' => 'error',
-			]));
 		} catch(\Exception $e) {
 			$this->addFlash('danger', 'Une erreur est survenue lors du paiement, puis lors de l\'enregistrement de l\'erreur. Veuillez contacter l\'équipe technique pour vérification.');
 		}
+		
+		return $this->redirectToRoute($transaction->getCallbackRoute(), array_merge($transaction->getCallbackParams(), [
+			'status' => 'error',
+		]));
+	}
+	
+	/**
+	 * @Route("/redirectToCheckout/{id}", name="redirect_to_checkout", methods={"GET"})
+	 * @param string $id
+	 * @return Response
+	 */
+	public function redirectToCheckout(string $id): Response
+	{
+		return $this->render('@AkyosPayment/payment_options/redirectoToCheckout.html.twig', [
+			'id' => $id,
+			'api_key' => $this->getParameter('stripe_test_public_key')
+		]);
 	}
 }

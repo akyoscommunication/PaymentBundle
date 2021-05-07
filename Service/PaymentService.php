@@ -4,6 +4,7 @@ namespace Akyos\PaymentBundle\Service;
 
 use Akyos\PaymentBundle\Entity\Transaction;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -12,15 +13,17 @@ class PaymentService
 	private EntityManagerInterface $entityManager;
 	private FlashBagInterface $flashBag;
 	private UrlGeneratorInterface $urlGenerator;
+	private ContainerInterface $container;
 	
-	public function __construct(EntityManagerInterface $entityManager, FlashBagInterface $flashBag, UrlGeneratorInterface $urlGenerator)
+	public function __construct(EntityManagerInterface $entityManager, FlashBagInterface $flashBag, UrlGeneratorInterface $urlGenerator, ContainerInterface $container)
 	{
 		$this->entityManager = $entityManager;
 		$this->flashBag = $flashBag;
 		$this->urlGenerator = $urlGenerator;
+		$this->container = $container;
 	}
 	
-	public function createTransaction(string $module, string $transactionType, float $amount, string $callbackRoute, array $callbackParams, array $options = null)
+	public function createTransaction(string $module, string $transactionType, string $description, float $amount, string $callbackRoute, array $callbackParams, array $options = null)
 	{
 		try {
 			$transaction = new Transaction();
@@ -28,13 +31,15 @@ class PaymentService
 				->setPaymentModule($module)
 				->setTransactionType($transactionType)
 				->setAmount($amount)
+				->setDescription($description)
 				->setCallbackRoute($callbackRoute)
 				->setCallbackParams($callbackParams)
 			;
 			
-			$transaction->setPaymentUrl($this->getPaymentUrl($transaction));
-			
 			$this->entityManager->persist($transaction);
+			$transaction->setPaymentUrl('');
+			$this->entityManager->flush();
+			$transaction->setPaymentUrl($this->getPaymentUrl($transaction));
 			$this->entityManager->flush();
 			
 			return $transaction;
@@ -49,12 +54,13 @@ class PaymentService
 		$successUrl = $this->urlGenerator->generate('akyos_payment_bundle_success', ['id' => $transaction->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 		$errorUrl = $this->urlGenerator->generate('akyos_payment_bundle_error', ['id' => $transaction->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 		
-		$moduleServiceName = $transaction->getPaymentModule().'Service';
+		$moduleServiceName = 'Akyos\\PaymentBundle\\Service\\'.$transaction->getPaymentModule().'Service';
 		if(class_exists($moduleServiceName)) {
+			$service = $this->container->get($moduleServiceName);
 			if($transaction->getTransactionType() === Transaction::TRANSACTION_TYPE_UNIQUE) {
-				$url = $moduleServiceName::getUniquePaymentUrl($transaction->getAmount(), $successUrl, $errorUrl);
+				$url = $service->getUniquePaymentUrl($transaction, $successUrl, $errorUrl);
 			} elseif($transaction->getTransactionType() === Transaction::TRANSACTION_TYPE_RECURRENT) {
-				$url = $moduleServiceName::getRecurrentPaymentUrl($transaction->getAmount(), $successUrl, $errorUrl);
+				$url = $service->getRecurrentPaymentUrl($transaction, $successUrl, $errorUrl);
 			} else {
 				throw new \Exception('Transaction type '.$transaction->getPaymentModule().' doesn\'t exists');
 			}
