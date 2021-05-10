@@ -2,28 +2,29 @@
 
 namespace Akyos\PaymentBundle\Service;
 
+use Akyos\PaymentBundle\Entity\Payment;
 use Akyos\PaymentBundle\Entity\Transaction;
 use Akyos\PaymentBundle\Repository\PaymentOptionsRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
-use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class StripeService
 {
 	private PaymentOptionsRepository $paymentOptionsRepository;
 	private ParameterBagInterface $parameterBag;
-	private HttpClientInterface $client;
 	private UrlGeneratorInterface $urlGenerator;
+	private EntityManagerInterface $entityManager;
 	
-	public function __construct(ParameterBagInterface $parameterBag, PaymentOptionsRepository $paymentOptionsRepository, HttpClientInterface $client, UrlGeneratorInterface $urlGenerator)
+	public function __construct(ParameterBagInterface $parameterBag, PaymentOptionsRepository $paymentOptionsRepository, UrlGeneratorInterface $urlGenerator, EntityManagerInterface $entityManager)
 	{
 		$this->paymentOptionsRepository = $paymentOptionsRepository;
 		$this->parameterBag = $parameterBag;
-		$this->client = $client;
 		$this->urlGenerator = $urlGenerator;
+		$this->entityManager = $entityManager;
 	}
 	
 	public function getUniquePaymentUrl(Transaction $transaction, $successUrl, $errorUrl): string
@@ -42,8 +43,8 @@ class StripeService
 				'quantity' => 1,
 			]],
 			'mode' => 'payment',
-			'success_url' => $successUrl,
-			'cancel_url' => $errorUrl,
+			'success_url' => $successUrl.'?session_id={CHECKOUT_SESSION_ID}',
+			'cancel_url' => $errorUrl.'?session_id={CHECKOUT_SESSION_ID}',
 		]);
 		
 		return  $this->urlGenerator->generate('akyos_payment_bundle_redirect_to_checkout', ['id' => $checkout_session->id], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -53,6 +54,54 @@ class StripeService
 	{
 		Stripe::setApiKey($this->getKey());
 		return '';
+	}
+	
+	public function success(Transaction $transaction, Request $request): string
+	{
+		try {
+			Stripe::setApiKey($this->getKey());
+			$sessionId = $request->get('session_id');
+			$checkoutSession = Session::retrieve($sessionId);
+		
+			$payment = new Payment();
+			$payment
+				->setTransaction($transaction)
+				->setStatus(Payment::STATUS_PAID)
+				->setToken($sessionId)
+				->setLog($checkoutSession->toJSON())
+			;
+			
+			$this->entityManager->persist($payment);
+			$this->entityManager->flush();
+			
+			return true;
+		} catch(\Exception $e) {
+			return false;
+		}
+	}
+	
+	public function error(Transaction $transaction, Request $request): string
+	{
+		try {
+			Stripe::setApiKey($this->getKey());
+			$sessionId = $request->get('session_id');
+			$checkoutSession = Session::retrieve($sessionId);
+			
+			$payment = new Payment();
+			$payment
+				->setTransaction($transaction)
+				->setStatus(Payment::STATUS_CANCELLED)
+				->setToken($sessionId)
+				->setLog($checkoutSession->toJSON())
+			;
+			
+			$this->entityManager->persist($payment);
+			$this->entityManager->flush();
+			
+			return true;
+		} catch(\Exception $e) {
+			return false;
+		}
 	}
 	
 	private function getKey() {

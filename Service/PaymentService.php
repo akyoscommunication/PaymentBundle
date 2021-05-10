@@ -3,6 +3,7 @@
 namespace Akyos\PaymentBundle\Service;
 
 use Akyos\PaymentBundle\Entity\Transaction;
+use Akyos\PaymentBundle\Repository\PaymentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
@@ -14,13 +15,15 @@ class PaymentService
 	private FlashBagInterface $flashBag;
 	private UrlGeneratorInterface $urlGenerator;
 	private ContainerInterface $container;
+	private PaymentRepository $paymentRepository;
 	
-	public function __construct(EntityManagerInterface $entityManager, FlashBagInterface $flashBag, UrlGeneratorInterface $urlGenerator, ContainerInterface $container)
+	public function __construct(EntityManagerInterface $entityManager, FlashBagInterface $flashBag, UrlGeneratorInterface $urlGenerator, ContainerInterface $container, PaymentRepository $paymentRepository)
 	{
 		$this->entityManager = $entityManager;
 		$this->flashBag = $flashBag;
 		$this->urlGenerator = $urlGenerator;
 		$this->container = $container;
+		$this->paymentRepository = $paymentRepository;
 	}
 	
 	public function createTransaction(string $module, string $transactionType, string $description, float $amount, string $callbackRoute, array $callbackParams, array $options = null)
@@ -53,20 +56,36 @@ class PaymentService
 	{
 		$successUrl = $this->urlGenerator->generate('akyos_payment_bundle_success', ['id' => $transaction->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 		$errorUrl = $this->urlGenerator->generate('akyos_payment_bundle_error', ['id' => $transaction->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+		$service = $this->getModuleService($transaction->getPaymentModule());
 		
-		$moduleServiceName = 'Akyos\\PaymentBundle\\Service\\'.$transaction->getPaymentModule().'Service';
-		if(class_exists($moduleServiceName)) {
-			$service = $this->container->get($moduleServiceName);
-			if($transaction->getTransactionType() === Transaction::TRANSACTION_TYPE_UNIQUE) {
-				$url = $service->getUniquePaymentUrl($transaction, $successUrl, $errorUrl);
-			} elseif($transaction->getTransactionType() === Transaction::TRANSACTION_TYPE_RECURRENT) {
-				$url = $service->getRecurrentPaymentUrl($transaction, $successUrl, $errorUrl);
-			} else {
-				throw new \Exception('Transaction type '.$transaction->getPaymentModule().' doesn\'t exists');
-			}
-			return $url;
+		if($transaction->getTransactionType() === Transaction::TRANSACTION_TYPE_UNIQUE) {
+			$url = $service->getUniquePaymentUrl($transaction, $successUrl, $errorUrl);
+		} elseif($transaction->getTransactionType() === Transaction::TRANSACTION_TYPE_RECURRENT) {
+			$url = $service->getRecurrentPaymentUrl($transaction, $successUrl, $errorUrl);
+		} else {
+			throw new \Exception('Transaction type '.$transaction->getPaymentModule().' doesn\'t exists');
 		}
 		
-		throw new \Exception('Module '.$transaction->getPaymentModule().' doesn\'t exists');
+		return $url;
+	}
+	
+	public function getModuleService(string $module): ?object
+	{
+		$moduleServiceName = 'Akyos\\PaymentBundle\\Service\\'.$module.'Service';
+		if(class_exists($moduleServiceName)) {
+			return $this->container->get($moduleServiceName);
+		}
+		throw new \Exception('Module '.$module.' doesn\'t exists');
+	}
+	
+	public function getLastPayment(Transaction $transaction)
+	{
+		$payments = $this->paymentRepository->findBy(['transaction' => $transaction], ['createdAt' => 'DESC']);
+		
+		if($payments) {
+			return $payments[0];
+		}
+		
+		return false;
 	}
 }

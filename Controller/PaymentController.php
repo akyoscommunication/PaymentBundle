@@ -20,24 +20,13 @@ class PaymentController extends AbstractController
 	 * @Route("/success/{id}", name="success", methods={"GET","POST"})
 	 * @param Transaction $transaction
 	 * @param Request $request
-	 * @param EntityManagerInterface $entityManager
 	 * @param PaymentService $paymentService
 	 * @return Response
-	 * @throws \Exception
 	 */
-	public function success(Transaction $transaction, Request $request, EntityManagerInterface $entityManager, PaymentService $paymentService): Response
+	public function success(Transaction $transaction, Request $request, PaymentService $paymentService): Response
 	{
-		try {
-			// TODO => create Payment with bank datas
-			$payment = new Payment();
-			$payment
-				->setStatus(Payment::STATUS_PAID)
-				->setTransaction($transaction)
-			;
-			$transaction->setPaymentUrl($paymentService->getPaymentUrl($transaction));
-			$entityManager->persist($payment);
-			$entityManager->flush();
-		} catch(\Exception $e) {
+		$service = $paymentService->getModuleService($transaction->getPaymentModule());
+		if(!$service->success($transaction, $request)) {
 			$this->addFlash('danger', 'Le paiement a bien été pris en compte par le module bancaire, mais l\'enregistrement du paiement sur ce site n\'a pas pu aboutir. Veuillez contacter l\‘équipe technique pour vérification.');
 		}
 		
@@ -50,23 +39,13 @@ class PaymentController extends AbstractController
 	 * @Route("/error/{id}", name="error", methods={"GET","POST"})
 	 * @param Transaction $transaction
 	 * @param Request $request
-	 * @param EntityManagerInterface $entityManager
 	 * @param PaymentService $paymentService
 	 * @return Response
 	 */
-	public function error(Transaction $transaction, Request $request, EntityManagerInterface $entityManager, PaymentService $paymentService): Response
+	public function error(Transaction $transaction, Request $request, PaymentService $paymentService): Response
 	{
-		try {
-			// TODO => log error with bank datas + renew payment link for next try
-			$payment = new Payment();
-			$payment
-				->setStatus(Payment::STATUS_CANCELLED)
-				->setTransaction($transaction)
-			;
-			$transaction->setPaymentUrl($paymentService->getPaymentUrl($transaction));
-			$entityManager->persist($payment);
-			$entityManager->flush();
-		} catch(\Exception $e) {
+		$service = $paymentService->getModuleService($transaction->getPaymentModule());
+		if(!$service->error($transaction, $request)) {
 			$this->addFlash('danger', 'Une erreur est survenue lors du paiement, puis lors de l\'enregistrement de l\'erreur. Veuillez contacter l\'équipe technique pour vérification.');
 		}
 		

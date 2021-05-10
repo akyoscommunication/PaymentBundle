@@ -34,6 +34,16 @@ class Payment
      */
     private $transaction;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $token;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $log;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +69,30 @@ class Payment
     public function setTransaction(?Transaction $transaction): self
     {
         $this->transaction = $transaction;
+
+        return $this;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(string $token): self
+    {
+        $this->token = $token;
+
+        return $this;
+    }
+
+    public function getLog(): ?string
+    {
+        return $this->log;
+    }
+
+    public function setLog(?string $log): self
+    {
+        $this->log = $log;
 
         return $this;
     }
