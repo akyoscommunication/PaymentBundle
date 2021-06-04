@@ -4,6 +4,7 @@ namespace Akyos\PaymentBundle\Controller;
 
 use Akyos\PaymentBundle\Entity\Payment;
 use Akyos\PaymentBundle\Entity\Transaction;
+use Akyos\PaymentBundle\Repository\PaymentOptionsRepository;
 use Akyos\PaymentBundle\Service\PaymentService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -57,13 +58,24 @@ class PaymentController extends AbstractController
 	/**
 	 * @Route("/redirectToCheckout/{id}", name="redirect_to_checkout", methods={"GET"})
 	 * @param string $id
+	 * @param PaymentOptionsRepository $paymentOptionsRepository
 	 * @return Response
 	 */
-	public function redirectToCheckout(string $id): Response
+	public function redirectToCheckout(string $id, PaymentOptionsRepository $paymentOptionsRepository): Response
 	{
+		$paymentOptions = $paymentOptionsRepository->findAll();
+		if ($paymentOptions) {
+			$paymentOptions = $paymentOptions[0];
+		}
+		
+		$apiKey = $this->getParameter('stripe_test_key');
+		if($paymentOptions && $paymentOptions->getActivateStripeLive() && $this->getParameter('kernel.environment') === "prod") {
+			$apiKey = $this->getParameter('stripe_live_key');
+		}
+		
 		return $this->render('@AkyosPayment/payment_options/redirectoToCheckout.html.twig', [
 			'id' => $id,
-			'api_key' => $this->getParameter('stripe_test_public_key')
+			'api_key' => $apiKey,
 		]);
 	}
 }
