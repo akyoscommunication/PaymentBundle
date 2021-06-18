@@ -68,9 +68,9 @@ class PaymentController extends AbstractController
 			$paymentOptions = $paymentOptions[0];
 		}
 		
-		$apiKey = $this->getParameter('stripe_test_key');
+		$apiKey = $this->getParameter('stripe_test_public_key');
 		if($paymentOptions && $paymentOptions->getActivateStripeLive() && $this->getParameter('kernel.environment') === "prod") {
-			$apiKey = $this->getParameter('stripe_live_key');
+			$apiKey = $this->getParameter('stripe_live_public_key');
 		}
 		
 		return $this->render('@AkyosPayment/payment_options/redirectoToCheckout.html.twig', [
