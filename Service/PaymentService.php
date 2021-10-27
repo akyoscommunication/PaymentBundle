@@ -2,9 +2,11 @@
 
 namespace Akyos\PaymentBundle\Service;
 
+use Akyos\PaymentBundle\Entity\Payment;
 use Akyos\PaymentBundle\Entity\Transaction;
 use Akyos\PaymentBundle\Repository\PaymentRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Stripe\Stripe;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -67,6 +69,15 @@ class PaymentService
 		}
 		
 		return $url;
+	}
+	
+	public function getChargeDetails(Payment $payment): array
+	{
+		$service = $this->getModuleService($payment->getTransaction()->getPaymentModule());
+		$paymentIntentId = json_decode($payment->getLog(), true)['payment_intent'];
+		/** @var array $charges */
+		$charges = $service->getCharges($paymentIntentId);
+		return $charges;
 	}
 	
 	public function getModuleService(string $module): ?object

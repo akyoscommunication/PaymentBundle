@@ -6,7 +6,9 @@ use Akyos\PaymentBundle\Entity\Payment;
 use Akyos\PaymentBundle\Entity\Transaction;
 use Akyos\PaymentBundle\Repository\PaymentOptionsRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Stripe\Charge;
 use Stripe\Checkout\Session;
+use Stripe\PaymentIntent;
 use Stripe\Stripe;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,8 +54,25 @@ class StripeService
 	
 	public function getRecurrentPaymentUrl(float $amount, $successUrl, $errorUrl): string
 	{
+		// TODO => Recurrent payments
 		Stripe::setApiKey($this->getKey());
 		return '';
+	}
+	
+	public function getCharges(String $paymentIntentId): array
+	{
+		Stripe::setApiKey($this->getKey());
+		$paymentIntent = PaymentIntent::retrieve($paymentIntentId);
+		$charges = [];
+		if($paymentIntent->charges->data) {
+			foreach ($paymentIntent->charges->data as $data) {
+				$charge = Charge::retrieve($data->id);
+				if($charge) {
+					$charges[] = $charge;
+				}
+			}
+		}
+		return $charges;
 	}
 	
 	public function success(Transaction $transaction, Request $request): string
