@@ -58,22 +58,25 @@ class StripeService
 		Stripe::setApiKey($this->getKey());
 		return '';
 	}
-	
-	public function getCharges(String $paymentIntentId): array
-	{
-		Stripe::setApiKey($this->getKey());
-		$paymentIntent = PaymentIntent::retrieve($paymentIntentId);
-		$charges = [];
-		if($paymentIntent->charges->data) {
-			foreach ($paymentIntent->charges->data as $data) {
-				$charge = Charge::retrieve($data->id);
-				if($charge) {
-					$charges[] = $charge;
-				}
-			}
-		}
-		return $charges;
-	}
+
+    public function getCharges(String $paymentIntentId): array
+    {
+        Stripe::setApiKey($this->getKey());
+        $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
+        $charges = [];
+        if($paymentIntent->charges->total_count === 0) {
+            return [$paymentIntent];
+        }
+        if ($paymentIntent->charges->data) {
+            foreach ($paymentIntent->charges->data as $data) {
+                $charge = Charge::retrieve($data->id);
+                if($charge) {
+                    $charges[] = $charge;
+                }
+            }
+        }
+        return $charges;
+    }
 	
 	public function success(Transaction $transaction, Request $request): string
 	{
