@@ -64,7 +64,10 @@ class StripeService
 		Stripe::setApiKey($this->getKey());
 		$paymentIntent = PaymentIntent::retrieve($paymentIntentId);
 		$charges = [];
-		if($paymentIntent->charges->data) {
+        if($paymentIntent->charges->total_count === 0) {
+            return [$paymentIntent];
+        }
+        if ($paymentIntent->charges->data) {
 			foreach ($paymentIntent->charges->data as $data) {
 				$charge = Charge::retrieve($data->id);
 				if($charge) {
@@ -133,6 +136,6 @@ class StripeService
 			return $this->parameterBag->get('stripe_live_key');
 		}
 		
-		return $this->parameterBag->get('stripe_test_key');
+		return $this->parameterBag->get('stripe_live_key');
 	}
 }
