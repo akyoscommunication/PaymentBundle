@@ -58,7 +58,7 @@ class StripeService
 		Stripe::setApiKey($this->getKey());
 		return '';
 	}
-	
+
 	public function getCharges(String $paymentIntentId): array
 	{
 		Stripe::setApiKey($this->getKey());
@@ -77,14 +77,14 @@ class StripeService
 		}
 		return $charges;
 	}
-	
+
 	public function success(Transaction $transaction, Request $request): string
 	{
 		try {
 			Stripe::setApiKey($this->getKey());
 			$sessionId = $request->get('session_id');
 			$checkoutSession = Session::retrieve($sessionId);
-		
+
 			$payment = new Payment();
 			$payment
 				->setTransaction($transaction)
@@ -92,23 +92,23 @@ class StripeService
 				->setToken($sessionId)
 				->setLog($checkoutSession->toJSON())
 			;
-			
+
 			$this->entityManager->persist($payment);
 			$this->entityManager->flush();
-			
+
 			return true;
 		} catch(\Exception $e) {
 			return false;
 		}
 	}
-	
+
 	public function error(Transaction $transaction, Request $request): string
 	{
 		try {
 			Stripe::setApiKey($this->getKey());
 			$sessionId = $request->get('session_id');
 			$checkoutSession = Session::retrieve($sessionId);
-			
+
 			$payment = new Payment();
 			$payment
 				->setTransaction($transaction)
@@ -116,26 +116,26 @@ class StripeService
 				->setToken($sessionId)
 				->setLog($checkoutSession->toJSON())
 			;
-			
+
 			$this->entityManager->persist($payment);
 			$this->entityManager->flush();
-			
+
 			return true;
 		} catch(\Exception $e) {
 			return false;
 		}
 	}
-	
+
 	private function getKey() {
 		$paymentOptions = $this->paymentOptionsRepository->findAll();
 		if ($paymentOptions) {
 			$paymentOptions = $paymentOptions[0];
 		}
-		
+
 		if($paymentOptions && $paymentOptions->getActivateStripeLive() && $this->parameterBag->get('kernel.environment') === "prod") {
 			return $this->parameterBag->get('stripe_live_key');
 		}
-		
-		return $this->parameterBag->get('stripe_live_key');
+
+		return $this->parameterBag->get('stripe_test_key');
 	}
 }
