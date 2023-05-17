@@ -11,7 +11,7 @@ services:
     # please note that last definitions always *replace* previous ones
 
     Akyos\PaymentBundle\:
-        resource: '../../../../lib/PaymentBundle/*'
+        resource: './../../*'
         tags: [ 'controller.service_arguments' ]
         public: true
 
