@@ -6,7 +6,7 @@ use Akyos\PaymentBundle\DependencyInjection\PaymentBundleExtension;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class AkyosBlogBundle extends Bundle
+class AkyosPaymentBundle extends Bundle
 {
     public function getContainerExtension(): ?ExtensionInterface
     {
