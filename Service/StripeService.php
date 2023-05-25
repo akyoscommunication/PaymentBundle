@@ -16,14 +16,12 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class StripeService
 {
-	private PaymentOptionsRepository $paymentOptionsRepository;
-	private ParameterBagInterface $parameterBag;
-	private UrlGeneratorInterface $urlGenerator;
-	private EntityManagerInterface $entityManager;
+	private readonly ParameterBagInterface $parameterBag;
+	private readonly UrlGeneratorInterface $urlGenerator;
+	private readonly EntityManagerInterface $entityManager;
 	
-	public function __construct(ParameterBagInterface $parameterBag, PaymentOptionsRepository $paymentOptionsRepository, UrlGeneratorInterface $urlGenerator, EntityManagerInterface $entityManager)
+	public function __construct(ParameterBagInterface $parameterBag, private readonly PaymentOptionsRepository $paymentOptionsRepository, UrlGeneratorInterface $urlGenerator, EntityManagerInterface $entityManager)
 	{
-		$this->paymentOptionsRepository = $paymentOptionsRepository;
 		$this->parameterBag = $parameterBag;
 		$this->urlGenerator = $urlGenerator;
 		$this->entityManager = $entityManager;
@@ -97,7 +95,7 @@ class StripeService
 			$this->entityManager->flush();
 
 			return true;
-		} catch(\Exception $e) {
+		} catch(\Exception) {
 			return false;
 		}
 	}
@@ -121,7 +119,7 @@ class StripeService
 			$this->entityManager->flush();
 
 			return true;
-		} catch(\Exception $e) {
+		} catch(\Exception) {
 			return false;
 		}
 	}

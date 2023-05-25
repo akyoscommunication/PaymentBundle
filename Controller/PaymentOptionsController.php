@@ -11,19 +11,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
-/**
- * @Route("/admin/payment_bundle/options", name="payment_options")
- * @isGranted("options-du-bundle-de-paiement")
- */
+#[Route(path: '/admin/payment_bundle/options', name: 'payment_options')]
+#[isGranted('options-du-bundle-de-paiement')]
 class PaymentOptionsController extends AbstractController
 {
 	/**
-	 * @Route("/", name="", methods={"GET", "POST"})
-	 * @param PaymentOptionsRepository $paymentOptionsRepository
-	 * @param Request $request
-	 * @return Response
-	 */
-	public function index(PaymentOptionsRepository $paymentOptionsRepository, Request $request): Response
+  * @param Request $request
+  * @return Response
+  */
+ #[Route(path: '/', name: '', methods: ['GET', 'POST'])]
+ public function index(PaymentOptionsRepository $paymentOptionsRepository, Request $request): Response
 	{
 		$paymentOptions = $paymentOptionsRepository->findAll();
 		if (!$paymentOptions) {

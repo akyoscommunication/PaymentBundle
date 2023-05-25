@@ -10,17 +10,14 @@ use Twig\TwigFunction;
 
 class PaymentsExtension extends AbstractExtension
 {
-	private PaymentService $paymentService;
-	
-	public function __construct(PaymentService $paymentService)
-	{
-		$this->paymentService = $paymentService;
-	}
+	public function __construct(private readonly PaymentService $paymentService)
+ {
+ }
 	
 	public function getFunctions(): array
 	{
 		return [
-			new TwigFunction('getLastPayment', [$this->paymentService, 'getLastPayment']),
+			new TwigFunction('getLastPayment', $this->paymentService->getLastPayment(...)),
 		];
 	}
 }

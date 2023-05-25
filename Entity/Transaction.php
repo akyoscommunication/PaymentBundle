@@ -8,66 +8,46 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
-/**
- * @ORM\Entity(repositoryClass=TransactionRepository::class)
- */
+#[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
 {
 	use TimestampableEntity;
 	
-	public const TRANSACTION_MODULE_STRIPE = "Stripe";
-	public const TRANSACTION_MODULE_MONETICO = "Monetico";
-	public const TRANSACTION_MODULE_PAYPAL = "Paypal";
+	final public const TRANSACTION_MODULE_STRIPE = "Stripe";
+	final public const TRANSACTION_MODULE_MONETICO = "Monetico";
+	final public const TRANSACTION_MODULE_PAYPAL = "Paypal";
 	
-	public const TRANSACTION_TYPE_UNIQUE = "Unique";
-	public const TRANSACTION_TYPE_RECURRENT = "Abonnement";
+	final public const TRANSACTION_TYPE_UNIQUE = "Unique";
+	final public const TRANSACTION_TYPE_RECURRENT = "Abonnement";
 	
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $paymentModule;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $paymentModule = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $transactionType;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $transactionType = null;
 
-    /**
-     * @ORM\Column(type="float")
-     */
-    private $amount;
+    #[ORM\Column(type: 'float')]
+    private ?float $amount = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $callbackRoute;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $callbackRoute = null;
 
-    /**
-     * @ORM\Column(type="array", nullable=true)
-     */
-    private $callbackParams = [];
+    #[ORM\Column(type: 'array', nullable: true)]
+    private ?array $callbackParams = [];
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $paymentUrl;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $paymentUrl = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Payment::class, mappedBy="transaction", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: Payment::class, mappedBy: 'transaction', orphanRemoval: true)]
     private $payments;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $description;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $description = null;
 
     public function __construct()
     {

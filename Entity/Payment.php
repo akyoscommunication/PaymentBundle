@@ -6,43 +6,31 @@ use Akyos\PaymentBundle\Repository\PaymentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
-/**
- * @ORM\Entity(repositoryClass=PaymentRepository::class)
- */
+#[ORM\Entity(repositoryClass: PaymentRepository::class)]
 class Payment
 {
 	use TimestampableEntity;
 	
-	public const STATUS_PAID = 'Payé';
-	public const STATUS_CANCELLED = 'Annulé';
+	final public const STATUS_PAID = 'Payé';
+	final public const STATUS_CANCELLED = 'Annulé';
 	
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $status;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $status = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Transaction::class, inversedBy="payments")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $transaction;
+    #[ORM\ManyToOne(targetEntity: Transaction::class, inversedBy: 'payments')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?\Akyos\PaymentBundle\Entity\Transaction $transaction = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $token;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $token = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $log;
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $log = null;
 
     public function getId(): ?int
     {

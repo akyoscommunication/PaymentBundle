@@ -12,19 +12,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/payment-bundle", name="akyos_payment_bundle_")
- */
+#[Route(path: '/payment-bundle', name: 'akyos_payment_bundle_')]
 class PaymentController extends AbstractController
 {
 	/**
-	 * @Route("/success/{id}", name="success", methods={"GET","POST"})
-	 * @param Transaction $transaction
-	 * @param Request $request
-	 * @param PaymentService $paymentService
-	 * @return Response
-	 */
-	public function success(Transaction $transaction, Request $request, PaymentService $paymentService): Response
+  * @param Request $request
+  * @return Response
+  */
+ #[Route(path: '/success/{id}', name: 'success', methods: ['GET', 'POST'])]
+ public function success(Transaction $transaction, Request $request, PaymentService $paymentService): Response
 	{
 		$service = $paymentService->getModuleService($transaction->getPaymentModule());
 		if(!$service->success($transaction, $request)) {
@@ -37,13 +33,11 @@ class PaymentController extends AbstractController
 	}
 	
 	/**
-	 * @Route("/error/{id}", name="error", methods={"GET","POST"})
-	 * @param Transaction $transaction
-	 * @param Request $request
-	 * @param PaymentService $paymentService
-	 * @return Response
-	 */
-	public function error(Transaction $transaction, Request $request, PaymentService $paymentService): Response
+  * @param Request $request
+  * @return Response
+  */
+ #[Route(path: '/error/{id}', name: 'error', methods: ['GET', 'POST'])]
+ public function error(Transaction $transaction, Request $request, PaymentService $paymentService): Response
 	{
 		$service = $paymentService->getModuleService($transaction->getPaymentModule());
 		if(!$service->error($transaction, $request)) {
@@ -56,12 +50,10 @@ class PaymentController extends AbstractController
 	}
 	
 	/**
-	 * @Route("/redirectToCheckout/{id}", name="redirect_to_checkout", methods={"GET"})
-	 * @param string $id
-	 * @param PaymentOptionsRepository $paymentOptionsRepository
-	 * @return Response
-	 */
-	public function redirectToCheckout(string $id, PaymentOptionsRepository $paymentOptionsRepository): Response
+  * @return Response
+  */
+ #[Route(path: '/redirectToCheckout/{id}', name: 'redirect_to_checkout', methods: ['GET'])]
+ public function redirectToCheckout(string $id, PaymentOptionsRepository $paymentOptionsRepository): Response
 	{
 		$paymentOptions = $paymentOptionsRepository->findAll();
 		if ($paymentOptions) {

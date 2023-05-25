@@ -11,7 +11,7 @@ class   ExtendSidebar
 	private $router;
 	private $security;
 
-	public function __construct(UrlGeneratorInterface $router, Security $security)
+	public function __construct(UrlGeneratorInterface $router, \Symfony\Bundle\SecurityBundle\Security $security)
 	{
 		$this->router = $router;
 		$this->security = $security;
@@ -27,7 +27,7 @@ class   ExtendSidebar
 	{
 		$template = '';
 		if ($this->security->isGranted('options-du-bundle-de-paiement')) {
-			$template = '<li class="' . (strpos($route, "payment_options") !== false ? "active" : "") . '"><a href="' . $this->router->generate('payment_options') . '">Gestion des paiements</a></li>';
+			$template = '<li class="' . (str_contains((string) $route, "payment_options") ? "active" : "") . '"><a href="' . $this->router->generate('payment_options') . '">Gestion des paiements</a></li>';
 		}
 		return new Response($template);
 	}

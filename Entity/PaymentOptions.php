@@ -5,22 +5,16 @@ namespace Akyos\PaymentBundle\Entity;
 use Akyos\PaymentBundle\Repository\PaymentOptionsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PaymentOptionsRepository::class)
- */
+#[ORM\Entity(repositoryClass: PaymentOptionsRepository::class)]
 class PaymentOptions
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private $activateStripeLive;
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $activateStripeLive = null;
 
     public function getId(): ?int
     {

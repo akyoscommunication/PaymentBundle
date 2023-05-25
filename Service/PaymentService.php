@@ -13,19 +13,17 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class PaymentService
 {
-	private EntityManagerInterface $entityManager;
-	private FlashBagInterface $flashBag;
-	private UrlGeneratorInterface $urlGenerator;
-	private ContainerInterface $container;
-	private PaymentRepository $paymentRepository;
+	private readonly EntityManagerInterface $entityManager;
+	private readonly FlashBagInterface $flashBag;
+	private readonly UrlGeneratorInterface $urlGenerator;
+	private readonly ContainerInterface $container;
 	
-	public function __construct(EntityManagerInterface $entityManager, FlashBagInterface $flashBag, UrlGeneratorInterface $urlGenerator, ContainerInterface $container, PaymentRepository $paymentRepository)
+	public function __construct(EntityManagerInterface $entityManager, FlashBagInterface $flashBag, UrlGeneratorInterface $urlGenerator, ContainerInterface $container, private readonly PaymentRepository $paymentRepository)
 	{
 		$this->entityManager = $entityManager;
 		$this->flashBag = $flashBag;
 		$this->urlGenerator = $urlGenerator;
 		$this->container = $container;
-		$this->paymentRepository = $paymentRepository;
 	}
 	
 	public function createTransaction(string $module, string $transactionType, string $description, float $amount, string $callbackRoute, array $callbackParams, array $options = null)
@@ -48,7 +46,7 @@ class PaymentService
 			$this->entityManager->flush();
 			
 			return $transaction;
-		} catch( \Exception $e) {
+		} catch( \Exception) {
 			$this->flashBag->add('danger', 'Une erreur est survenue lors de la préparation du paiement en ligne, veuillez réessayer. Si le problème persiste, contactez l\'équipe technique.');
 			return false;
 		}
@@ -74,7 +72,7 @@ class PaymentService
 	public function getChargeDetails(Payment $payment): array
 	{
 		$service = $this->getModuleService($payment->getTransaction()->getPaymentModule());
-		$paymentIntentId = json_decode($payment->getLog(), true)['payment_intent'];
+		$paymentIntentId = json_decode($payment->getLog(), true, 512, JSON_THROW_ON_ERROR)['payment_intent'];
 		/** @var array $charges */
 		$charges = $service->getCharges($paymentIntentId);
 		return $charges;
