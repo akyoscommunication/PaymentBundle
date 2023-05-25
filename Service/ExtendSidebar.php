@@ -4,18 +4,14 @@ namespace Akyos\PaymentBundle\Service;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class   ExtendSidebar
 {
-	private $router;
-	private $security;
-
-	public function __construct(UrlGeneratorInterface $router, \Symfony\Bundle\SecurityBundle\Security $security)
-	{
-		$this->router = $router;
-		$this->security = $security;
-	}
+	public function __construct(
+		private readonly UrlGeneratorInterface $router,
+		private readonly Security $security,
+	) {}
 
 	public function getTemplate($route)
 	{

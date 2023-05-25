@@ -15,12 +15,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 #[isGranted('options-du-bundle-de-paiement')]
 class PaymentOptionsController extends AbstractController
 {
-	/**
-  * @param Request $request
-  * @return Response
-  */
- #[Route(path: '/', name: '', methods: ['GET', 'POST'])]
- public function index(PaymentOptionsRepository $paymentOptionsRepository, Request $request): Response
+	#[Route(path: '/', name: '', methods: ['GET', 'POST'])]
+	public function index(PaymentOptionsRepository $paymentOptionsRepository, Request $request): Response
 	{
 		$paymentOptions = $paymentOptionsRepository->findAll();
 		if (!$paymentOptions) {

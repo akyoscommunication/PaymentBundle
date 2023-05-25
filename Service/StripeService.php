@@ -16,16 +16,12 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class StripeService
 {
-	private readonly ParameterBagInterface $parameterBag;
-	private readonly UrlGeneratorInterface $urlGenerator;
-	private readonly EntityManagerInterface $entityManager;
-	
-	public function __construct(ParameterBagInterface $parameterBag, private readonly PaymentOptionsRepository $paymentOptionsRepository, UrlGeneratorInterface $urlGenerator, EntityManagerInterface $entityManager)
-	{
-		$this->parameterBag = $parameterBag;
-		$this->urlGenerator = $urlGenerator;
-		$this->entityManager = $entityManager;
-	}
+	public function __construct(
+		private readonly ParameterBagInterface $parameterBag,
+		private readonly PaymentOptionsRepository $paymentOptionsRepository,
+		private readonly UrlGeneratorInterface $urlGenerator,
+		private readonly EntityManagerInterface $entityManager
+	) {}
 	
 	public function getUniquePaymentUrl(Transaction $transaction, $successUrl, $errorUrl): string
 	{
