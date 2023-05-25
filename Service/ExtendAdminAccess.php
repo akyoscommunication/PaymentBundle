@@ -2,8 +2,8 @@
 
 namespace Akyos\PaymentBundle\Service;
 
-use Akyos\CoreBundle\Entity\AdminAccess;
-use Akyos\CoreBundle\Repository\AdminAccessRepository;
+use Akyos\CmsBundle\Entity\AdminAccess;
+use Akyos\CmsBundle\Repository\AdminAccessRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
