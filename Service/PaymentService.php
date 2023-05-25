@@ -9,6 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Stripe;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+
 class PaymentService
 {
 	public function __construct(
