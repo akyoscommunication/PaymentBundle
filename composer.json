@@ -1,27 +1,27 @@
 {
 	"name": "akyos/payment-bundle",
-	"description": "AkyosCMS for Symfony - Payment",
+	"description": "Stripe payment bundle for Symfony",
 	"type": "symfony-bundle",
+	"license": "MIT",
+	"authors": [
+	    {
+	      "name": "Lilian Carneau",
+	      "email": "lilian@akyos.com"
+	    },
+	    {
+	      "name": "Thomas Sebert",
+	      "email": "thomas@akyos.com"
+	    },
+	    {
+	      "name": "Akyos Communication",
+	       "homepage": "https://akyos.com"
+	    }
+	],
 	"require": {
 		"php": ">=8.1",
 		"stripe/stripe-php": "^7.78",
 		"rector/rector": "^0.16.0"
 	},
-	"license": "proprietary",
-	"authors": [
-		{
-			"name": "Lilian Carneau",
-			"email": "lilian@akyos.com"
-		},
-		{
-			"name": "Johan JOULKVA",
-			"email": "johan@akyos.com"
-		},
-		{
-			"name": "Thomas Sebert",
-			"email": "thomas@akyos.com"
-		}
-	],
 	"scripts": {
 		"after-install-dependencies": [
 			"echo $'\n' >> config/routes.yaml",
