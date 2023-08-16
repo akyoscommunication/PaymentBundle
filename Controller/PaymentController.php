@@ -24,6 +24,7 @@ class PaymentController extends AbstractController
 
 		return $this->redirectToRoute($transaction->getCallbackRoute(), array_merge($transaction->getCallbackParams(), [
 			'status' => 'success',
+			'transaction' => $transaction->getId(),
 		]));
 	}
 
@@ -37,6 +38,7 @@ class PaymentController extends AbstractController
 
 		return $this->redirectToRoute($transaction->getCallbackRoute(), array_merge($transaction->getCallbackParams(), [
 			'status' => 'error',
+			'transaction' => $transaction->getId(),
 		]));
 	}
 
